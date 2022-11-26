@@ -92,7 +92,9 @@ let deleteUserById = (userId) => {
         where: { id: userId },
       });
       if (user) {
-        await user.destroy();
+        await db.User.destroy({
+          where: { id: userId },
+        });
       }
       resolve();
     } catch (error) {
