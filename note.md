@@ -43,3 +43,5 @@ raw: true,
   item.image = new Buffer(item.image, "base64").toString("binary");
   return item;
   });
+
+Cách deploy nhanh hơn: k dùng nodemon và babel trên production: có nghĩa là start câu lệnh như này: node server.js
