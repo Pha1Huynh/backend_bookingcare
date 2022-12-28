@@ -1,4 +1,4 @@
-import clinicservice from "../services/clinicservice";
+import clinicservice from "../services/clinicService";
 
 let createClinic = async (req, res) => {
   try {
@@ -14,7 +14,7 @@ let createClinic = async (req, res) => {
 };
 let getAllClinic = async (req, res) => {
   try {
-    let info = await clinicservice.getAllClinic();
+    let info = await clinicervice.getAllClinic();
     return res.status(200).json(info);
   } catch (e) {
     console.log(e);
