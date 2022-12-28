@@ -11,7 +11,14 @@ let handleUserLogin = (email, password) => {
         //User is already exist
         let user = await db.User.findOne({
           where: { email: email },
-          attributes: ["email", "roleId", "password"],
+          attributes: [
+            "id",
+            "email",
+            "roleId",
+            "password",
+            "firstName",
+            "lastName",
+          ],
           raw: true,
         });
         if (user) {
@@ -62,23 +69,23 @@ let checkUserEmail = (userEmmail) => {
 let getAllUsers = (userId) => {
   return new Promise(async (resolve, reject) => {
     try {
-      let users = "";
+      let Users = "";
       if (userId === "ALL") {
-        users = await db.User.findAll({
+        Users = await db.User.findAll({
           attributes: {
             exclude: ["password"],
           },
         });
       }
       if (userId && userId !== "ALL") {
-        users = await db.User.findOne({
+        Users = await db.User.findOne({
           where: { id: userId },
           attributes: {
             exclude: ["password"],
           },
         });
       }
-      resolve(users);
+      resolve(Users);
     } catch (e) {
       reject(e);
     }
@@ -102,7 +109,7 @@ let createNewUser = (data) => {
       if (check) {
         resolve({
           errCode: 1,
-          message: "Your email is exist, please try another one",
+          errMessage: "Your email is exist, please try another one",
         });
       }
       if (!check) {
@@ -114,8 +121,10 @@ let createNewUser = (data) => {
           lastName: data.lastName,
           address: data.address,
           phoneNumber: data.phoneNumber,
-          gender: data.gender === 1 ? true : false,
+          gender: data.gender,
           roleId: data.roleId,
+          positionId: data.positionId,
+          image: data.avatar,
         });
         resolve({
           errCode: 0,
@@ -152,7 +161,7 @@ let deleteUser = (userId) => {
 let updateUserData = (data) => {
   return new Promise(async (resolve, reject) => {
     try {
-      if (!data.id) {
+      if (!data.id || !data.roleId || !data.positionId || !data.gender) {
         resolve({
           errCode: 2,
           errMessage: "Missing paramater",
@@ -163,10 +172,17 @@ let updateUserData = (data) => {
         raw: false,
       });
       if (user) {
-        (user.firstName = data.firstName),
-          (user.lastName = data.lastName),
-          (user.address = data.address),
-          await user.save();
+        user.firstName = data.firstName;
+        user.lastName = data.lastName;
+        user.address = data.address;
+        user.roleId = data.roleId;
+        user.positionId = data.positionId;
+        user.gender = data.gender;
+        user.phoneNumber = data.phoneNumber;
+        if (data.avatar) {
+          user.image = data.avatar;
+        }
+        await user.save();
         // await db.User.save({
         //   firstName: data.firstName,
         //   lastName: data.lastName,
@@ -189,10 +205,33 @@ let updateUserData = (data) => {
     }
   });
 };
+let getAllcodeservice = (typeInput) => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      if (!typeInput) {
+        resolve({
+          errCode: 1,
+          errMessage: "Missing parameters",
+        });
+      } else {
+        let res = {};
+        let allcode = await db.Allcode.findAll({
+          where: { type: typeInput },
+        });
+        res.errCode = 0;
+        res.data = allcode;
+        resolve(res);
+      }
+    } catch (e) {
+      reject(e);
+    }
+  });
+};
 module.exports = {
   handleUserLogin: handleUserLogin,
   getAllUsers: getAllUsers,
   createNewUser: createNewUser,
   deleteUser: deleteUser,
   updateUserData: updateUserData,
+  getAllcodeservice: getAllcodeservice,
 };
